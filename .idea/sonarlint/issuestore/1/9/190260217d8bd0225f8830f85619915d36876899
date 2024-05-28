@@ -1,0 +1,17 @@
+
+–
+java:S11923"SDefine a constant instead of duplicating this literal "\" cannot be null!" 3 times.(¾°¢8ëê×óû1J$06537cc0-8b87-41e0-99ea-63eea5dce79c
+
+java:S11923"MDefine a constant instead of duplicating this literal "Path for: \"" 3 times.(¾°¢8ìê×óû1J$3a0f93bf-e6cd-4e05-8997-c99666836f30
+Ü
+java:S6548"˜A Singleton implementation was detected. Make sure the use of the Singleton pattern is required and the implementation is the right one for the context.(‚©™8£ë×óû1J$80ade831-f583-4c0a-a0b8-703371d9cda4
+~
+java:S2696"6Make the enclosing method "static" or remove this set.(ÿ›êÙşÿÿÿÿ8«ë×óû1J$216918c8-91b8-4508-99a7-f885b1660deb
+}
+java:S2209"5Change this instance-reference to a static reference.(ÿ›êÙşÿÿÿÿ8¬ë×óû1J$7725dcf7-0893-4ffa-9684-a23cf95c0b7e
+~
+java:S2696 "6Make the enclosing method "static" or remove this set.(ñõîÙşÿÿÿÿ8¬ë×óû1J$ad5c03fc-aa29-4a0d-b0eb-8442ec2a049d
+D
+java:S1452"&Remove usage of generic wildcard type.(Ø¾Ø8šéÚóû1
+O
+java:S1144ã"1Remove this unused private "validatePath" method.(³ß÷8éÚóû1
