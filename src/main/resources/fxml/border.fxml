@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" minHeight="700.0" minWidth="600.0" spacing="20.0" style="-fx-background-color: #424242;" styleClass="background-secondary-color" stylesheets="@../css/darkmode.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wonkglorg.loginfx.pages.border.BorderController">
+    <children>
+        <BorderPane fx:id="mainBorderPane" prefHeight="700.0" prefWidth="674.0" VBox.vgrow="ALWAYS"> <!-- vgrow is important to make it always fill out the parent panel-->
+            <top>
+                <GridPane maxHeight="700.0" prefHeight="70.0" style="-fx-background-color: #303030;" styleClass="custom-top-bar" BorderPane.alignment="CENTER">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="0.0" minWidth="0.0" prefWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="202.0" minWidth="110.0" percentWidth="30.0" prefWidth="202.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                    <children>
+                        <HBox fx:id="userInfoBox" alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                            <GridPane.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                            </GridPane.margin>
+                        </HBox>
+                    </children>
+                </GridPane>
+            </top>
+            <bottom>
+                <Pane maxHeight="0.0" BorderPane.alignment="CENTER" />
+            </bottom>
+            <left>
+                <Pane maxWidth="0.0" BorderPane.alignment="CENTER" />
+            </left>
+            <right>
+                <Pane maxWidth="0.0" BorderPane.alignment="CENTER" />
+            </right>
+        </BorderPane>
+    </children>
+</VBox>

@@ -1,0 +1,45 @@
+/* Main combo box*/
+
+.custom-combo-box {
+    -fx-background-color: transparent; /*removes the color from the base combobox making it match the background it is on*/
+}
+
+
+.custom-combo-box .list-cell {
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+    -fx-background-color: transparent;
+}
+
+
+.custom-combo-box .list-view {
+    -fx-border-color: transparent; /*removes the border from the combobox popup menu*/
+}
+
+
+/* Hides the down arrows of the combo box*/
+.custom-combo-box .arrow, .combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+
+.custom-top-bar {
+    -fx-border-width: 0 0 1 0;
+}
+
+/*    Tab Pane        */
+
+
+.tab-pane {
+    -fx-tab-min-width: 90px;
+}
+
+.tab {
+    -fx-background-insets: 0 1 0 1, 0, 0;
+}
+
+.tab .tab-label {
+    -fx-alignment: CENTER;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}

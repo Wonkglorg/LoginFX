@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" spacing="20.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wonkglorg.loginfx.pages.login.LoginController">
+    <children>
+      <Label fx:id="errorLabel" textAlignment="CENTER" textFill="#da0303">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Label>
+        <TextField fx:id="username" promptText="Username">
+            <VBox.margin>
+                <Insets />
+            </VBox.margin>
+        </TextField>
+        <TextField fx:id="password" promptText="Password">
+            <VBox.margin>
+                <Insets />
+            </VBox.margin>
+        </TextField>
+        <Button mnemonicParsing="false" text="Login" />
+    </children>
+</VBox>

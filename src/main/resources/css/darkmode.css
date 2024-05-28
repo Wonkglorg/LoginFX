@@ -1,0 +1,95 @@
+@import "stylesheet.css";
+
+/* Only works for colors but I can declare variables here*/
+* {
+    -primary-color: #eeefef;
+    -secondary-color: #a3a3a3;
+    -highlight-color: #efefef;
+    -background-primary-color: #303030;
+    -background-secondary-color: #424242;
+    -border-color: #7a7a7a;
+    -selected-color: #d27a41;
+    -hover-color: #c26a32;
+}
+
+
+.primary-text-color {
+    -fx-text-fill: -primary-color;
+}
+
+.secondary-text-color {
+    -fx-text-fill: -secondary-color;
+}
+
+.highlight-text-color {
+    -fx-text-fill: -highlight-color;
+}
+
+.background-primary-color {
+    -fx-background-color: -background-primary-color;
+}
+
+.background-secondary-color {
+    -fx-background-color: -background-secondary-color;
+}
+
+
+.custom-top-bar {
+    -fx-border-color: -border-color -border-color -border-color -border-color;
+}
+
+.custom-combo-box .list-cell {
+    -fx-text-fill: -primary-color;
+}
+
+/* Affects all cells when clicking on the combobox*/
+.custom-combo-box .list-view .list-cell {
+    -fx-text-fill: -primary-color;
+    -fx-background-color: -background-primary-color;
+}
+
+/* Selected item in the combo box*/
+.custom-combo-box .list-view .list-cell:focused {
+    -fx-background-color: -selected-color;
+    -fx-text-fill: white;
+}
+
+/* hovered over element in the comvo box */
+.custom-combo-box .list-view .list-cell:hover {
+    -fx-background-color: -hover-color;
+    -fx-text-fill: white;
+}
+
+/* Matches the border color with the panel making it feel like 1 continuse box otherwise it has a small gap between box and list */
+.custom-combo-box .list-view {
+    -fx-background-color: #303030; /* Or any other color you prefer */
+}
+
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #303030;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: -background-secondary-color;
+}
+
+.tab .tab-label {
+    -fx-text-fill: -secondary-color;
+}
+
+.tab-pane .tab {
+    -fx-background-color: -background-primary-color;
+}
+
+.tab:selected .tab-label {
+    -fx-text-fill: -selected-color;
+}
+
+.tab-pane .tab:highlighted {
+    -fx-background-color: -background-secondary-color;
+}
+
+.text-input {
+    -fx-text-fill: -primary-color;
+}
