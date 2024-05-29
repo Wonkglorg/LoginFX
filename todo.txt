@@ -1,0 +1,6 @@
+find out what works for a page for login
+
+
+
+
+make 1 window appear with login and register, if proceeded you come to the editor where you can edit and change account settings.

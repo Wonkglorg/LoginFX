@@ -4,14 +4,15 @@ module com.wonkglorg.loginfx {
     requires java.sql;
     requires com.wonkglorg.fxutility;
     requires JavaUtil.ed97a0806a;
+    requires bcrypt;
 
 
     opens com.wonkglorg.loginfx to javafx.fxml;
     exports com.wonkglorg.loginfx;
-    exports com.wonkglorg.loginfx.pages.border;
     exports com.wonkglorg.loginfx.pages.editor;
     exports com.wonkglorg.loginfx.pages.login;
-    opens com.wonkglorg.loginfx.pages.border to javafx.fxml;
+    exports com.wonkglorg.loginfx.pages.register;
+    opens com.wonkglorg.loginfx.pages.register to javafx.fxml;
     opens com.wonkglorg.loginfx.pages.editor to javafx.fxml;
     opens com.wonkglorg.loginfx.pages.login to javafx.fxml;
 }

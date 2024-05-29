@@ -2,8 +2,11 @@ package com.wonkglorg.loginfx.constants;
 
 public enum Scenes {
 
-    BORDER("Border", "/fxml/border.fxml");
+    LOGIN("Login", "/fxml/login.fxml"),
 
+    REGISTER("Register", "/fxml/register.fxml"),
+
+    ;
 
     private final String name;
     private final String path;

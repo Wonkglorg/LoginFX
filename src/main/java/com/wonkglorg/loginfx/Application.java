@@ -1,9 +1,7 @@
 package com.wonkglorg.loginfx;
 
 import com.wonkglorg.fxutility.manager.ManagedApplication;
-import com.wonkglorg.loginfx.constants.Nodes;
 import com.wonkglorg.loginfx.constants.Scenes;
-import com.wonkglorg.loginfx.manager.SessionManager;
 import javafx.stage.Stage;
 
 public class Application extends ManagedApplication {
@@ -11,10 +9,10 @@ public class Application extends ManagedApplication {
 
     @Override
     public void applicationStart(Stage stage) {
-        addNodes();
+        stage.setResizable(false);
         addScenes();
 
-        loadScene(Scenes.BORDER.getName());
+        loadScene(Scenes.LOGIN.getName());
 
     }
 
@@ -27,14 +25,5 @@ public class Application extends ManagedApplication {
         }
 
 
-    }
-
-    /**
-     * Add all nodes to the application.
-     */
-    private void addNodes() {
-        for (var node : Nodes.values()) {
-            addNode(node.getName(), Application.class.getResource(node.getPath()));
-        }
     }
 }

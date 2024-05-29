@@ -4,20 +4,20 @@ import com.wonkglorg.fxutility.manager.ManagedController;
 import com.wonkglorg.loginfx.Application;
 import com.wonkglorg.loginfx.constants.Scenes;
 import com.wonkglorg.loginfx.manager.SessionManager;
-import com.wonkglorg.loginfx.objects.UserData;
-import com.wonkglorg.loginfx.pages.border.BorderController;
+import com.wonkglorg.loginfx.pages.register.RegisterController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 public class LoginController extends ManagedController {
     @FXML
     protected TextField username;
     @FXML
     protected TextField password;
-
     @FXML
     protected Label errorLabel;
+
 
     private SessionManager sessionManager = SessionManager.getInstance();
 
@@ -42,20 +42,30 @@ public class LoginController extends ManagedController {
 
 
         if (username.getText().equals("admin") && password.getText().equals("admin")) {
-            BorderController borderController = Application.getInstance().getController(Scenes.BORDER.getName());
-            borderController.login(usernameString, null);
+
             return;
         }
 
         if (sessionManager.isValidUser(usernameString, passwordString)) {
+            /*
             UserData userData = sessionManager.getUserData(usernameString);
             BorderController borderController = Application.getInstance().getController(Scenes.BORDER.getName());
             borderController.login(usernameString, userData.getProfileImage());
+
+             */
         } else {
             errorLabel.setText("Invalid username or password");
         }
 
 
+    }
+
+    public void register() {
+        Stage stage = new Stage();
+        stage.setScene(Application.getInstance().getScene(Scenes.REGISTER.getName()).getKey());
+        //Hacky solution otherwise errors persist over reopens of the menu
+        Application.getInstance().getScene(Scenes.REGISTER.getName()).getValue().<RegisterController>getController().clearErrors();
+        stage.show();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.wonkglorg.loginfx.manager;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.wonkglorg.loginfx.objects.UserData;
 import com.wonkglorg.util.database.Database;
 import com.wonkglorg.util.database.MsSqlServerDatabase;
@@ -23,16 +24,30 @@ public class SessionManager {
         return instance;
     }
 
-    public void startSession() {
-        // Start the session
+    /**
+     * Hash the password using BCrypt with a cost of 10 (matching the default php password_hash cost)
+     *
+     * @param password
+     * @return the hashed password
+     */
+    public String hashPassword(String password) {
+        return BCrypt.withDefaults().hashToString(10, password.toCharArray());
     }
 
-    public void endSession() {
-        // End the session
+    public boolean registerUser(UserData userData) {
+
+        String hashedPassword = hashPassword(userData.getPassword());
+
+        return false;
     }
 
-    public boolean isSessionActive() {
-        // Check if the session is active
+    public boolean emailExists(String email) {
+        // Check if the email exists
+        return false;
+    }
+
+    public boolean usernameExists(String username) {
+        // Check if the username exists
         return false;
     }
 
