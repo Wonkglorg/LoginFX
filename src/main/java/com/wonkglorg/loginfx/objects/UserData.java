@@ -3,6 +3,7 @@ package com.wonkglorg.loginfx.objects;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.Blob;
@@ -19,16 +20,16 @@ public class UserData {
     private String phoneNumber;
     private String street;
     private String streetNumber;
-    private String city;
+    private String country;
     private String zipCode;
     private String federalState;
     private String birthday;
     private String password;
     private String email;
-    private Map.Entry<String, BufferedImage> profileImage;
+    private Map.Entry<String, Image> profileImage;
     private char gender;
 
-    public UserData(String userID, String username, String firstName, String lastName, String phoneNumber, String street, String streetNumber, String city, String zipCode, String federalState, String birthday, String password, char gender, String email, BufferedImage profileImage, String fileExtension) {
+    public UserData(String userID, String username, String firstName, String lastName, String phoneNumber, String street, String streetNumber, String country, String zipCode, String federalState, String birthday, String password, char gender, String email, Image profileImage, String imageName) {
         this.userID = userID;
         this.username = username;
         this.firstName = firstName;
@@ -36,13 +37,13 @@ public class UserData {
         this.phoneNumber = phoneNumber;
         this.street = street;
         this.streetNumber = streetNumber;
-        this.city = city;
+        this.country = country;
         this.zipCode = zipCode;
         this.federalState = federalState;
         this.birthday = birthday;
         this.password = password;
         this.email = email;
-        this.profileImage = Map.entry(fileExtension, profileImage);
+        this.profileImage = Map.entry(imageName, profileImage);
         this.gender = gender;
     }
 
@@ -71,7 +72,7 @@ public class UserData {
     }
 
     public String getCity() {
-        return city;
+        return country;
     }
 
     public String getZipCode() {
@@ -107,11 +108,11 @@ public class UserData {
         }
     }
 
-    public BufferedImage getProfileImage() {
+    public Image getProfileImage() {
         return profileImage.getValue();
     }
 
-    public String getFileExtension() {
+    public String getFileName() {
         return profileImage.getKey();
     }
 

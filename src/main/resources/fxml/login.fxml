@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-      prefHeight="350.0" prefWidth="300.0" spacing="20.0" xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wonkglorg.loginfx.pages.login.LoginController">
+<?import javafx.scene.text.*?>
+
+<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="300.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wonkglorg.loginfx.pages.login.LoginController">
     <Label text="Fog User Panel">
         <font>
-            <Font size="24.0"/>
+            <Font size="24.0" />
         </font>
         <VBox.margin>
-            <Insets top="30.0"/>
+            <Insets top="30.0" />
         </VBox.margin>
     </Label>
     <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="5.0">
-        <Label fx:id="errorPanel" textFill="RED"/>
+        <Label fx:id="errorPanel" textFill="RED" />
         <VBox alignment="CENTER" fillWidth="false" prefHeight="200.0" prefWidth="100.0">
-            <Label text="Username" textAlignment="CENTER"/>
-            <TextField fx:id="username" promptText="Username"/>
+            <Label text="Username" textAlignment="CENTER" />
+            <TextField fx:id="username" promptText="Username" />
         </VBox>
         <VBox alignment="CENTER" fillWidth="false" prefHeight="200.0" prefWidth="100.0">
-            <Label text="Password" textAlignment="CENTER"/>
-            <TextField fx:id="password" promptText="Password"/>
+            <Label text="Password" textAlignment="CENTER" />
+            <TextField fx:id="password" promptText="Password" />
         </VBox>
     </VBox>
     <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0">
-        <Button mnemonicParsing="false" prefWidth="150.0" text="Login"/>
-        <Button mnemonicParsing="false" onAction="#register" prefWidth="70.0" text="Register"/>
+        <Button mnemonicParsing="false" onAction="#login" prefWidth="150.0" text="Login" />
+        <Button mnemonicParsing="false" onAction="#register" prefWidth="70.0" text="Register" />
     </VBox>
 </VBox>

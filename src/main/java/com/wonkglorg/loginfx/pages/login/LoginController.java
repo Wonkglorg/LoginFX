@@ -4,6 +4,8 @@ import com.wonkglorg.fxutility.manager.ManagedController;
 import com.wonkglorg.loginfx.Application;
 import com.wonkglorg.loginfx.constants.Scenes;
 import com.wonkglorg.loginfx.manager.SessionManager;
+import com.wonkglorg.loginfx.objects.Action;
+import com.wonkglorg.loginfx.pages.editor.EditorController;
 import com.wonkglorg.loginfx.pages.register.RegisterController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -48,7 +50,12 @@ public class LoginController extends ManagedController {
 
         if (sessionManager.isValidUser(usernameString, passwordString)) {
             var user = sessionManager.getUserData(usernameString);
+
+            Application.getInstance().<EditorController>getController(Scenes.EDITOR.getName()).setUser(user);
+            Application.getInstance().loadScene(Scenes.EDITOR.getName());
+            sessionManager.logAction(new Action(user.getUserID(), "Login", "Successful login", usernameString));
         } else {
+            sessionManager.logAction(new Action("0", "Login", "Failed login attempt", usernameString));
             errorLabel.setText("Invalid username or password");
         }
 

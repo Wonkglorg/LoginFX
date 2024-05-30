@@ -5,7 +5,7 @@ public enum Scenes {
     LOGIN("Login", "/fxml/login.fxml"),
 
     REGISTER("Register", "/fxml/register.fxml"),
-
+    EDITOR("Editor", "/fxml/editor.fxml"),
     ;
 
     private final String name;

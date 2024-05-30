@@ -8,10 +8,11 @@ import com.wonkglorg.util.database.GenericServerDatabase;
 import com.wonkglorg.util.database.MsSqlServerDatabase;
 import com.wonkglorg.util.database.response.DatabaseResponse;
 import com.wonkglorg.util.database.response.DatabaseUpdateResponse;
+import javafx.scene.image.Image;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.sql.Blob;
+import java.io.*;
 import java.sql.PreparedStatement;
 import java.util.logging.Logger;
 
@@ -22,8 +23,6 @@ public class SessionManager {
 
     private static SessionManager instance;
     private final GenericServerDatabase database;
-
-    private UserData userData = null;
 
     private SessionManager() {
         com.wonkglorg.util.database.ConnectionBuilder builder = new ConnectionBuilder("jdbc:sqlserver://jmd-webdb-new.database.windows.net:1433;database=WebDB;user=dominik@jmd-webdb-new;password=x7!E8\"phKW;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;");
@@ -56,28 +55,108 @@ public class SessionManager {
         }
     }
 
+
     /**
      * Register a user in the database
      *
      * @param userData the user data to register
      * @return if the user was registered
      */
-    public boolean registerUser(UserData userData) {
-        String insertAccountData = "INSERT INTO dbo.AccountData (id,username,password,account_creation_date,profile_picture,email,profile_picture_exension) VALUES (?,?,?,GetDate(),?,?,?)";
+    public boolean registerUser(UserData userData, File image) {
+        if (!createAccountData(userData)) return false;
 
-        BufferedImage image = userData.getProfileImage();
-        String imageType = userData.getFileExtension();
-        Blob blob = database.createBlob(getBlobData(image, imageType));
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(image);
+        } catch (IOException e) {
+            logAction(new Action(userData.getUserID(), "register", "error", "Error reading Profile Picture: " + e.getMessage()));
+            return false;
+        }
 
 
-        DatabaseResponse response = database.executeUpdate(connection -> {
+        if (!createUserProfilePicture(fileInputStream, userData.getUserID(), "profile_picture", "profile_picture")) {
+            return false;
+        }
+
+        if (!createUserData(userData)) return false;
+
+
+        return true;
+    }
+
+    /**
+     * Register a user in the database
+     *
+     * @param stream      the input stream of the image
+     * @param userID      the user id
+     * @param contentType the content type of the image
+     * @param name        the name of the image
+     * @return if the user was registered
+     */
+    private boolean createUserProfilePicture(InputStream stream, String userID, String contentType, String name) {
+
+        String insertImage = "INSERT INTO dbo.images (id, name, contentType, image) VALUES (?,?,?,?)";
+
+        if (database.executeSingleObjQuery(connection -> {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM dbo.images WHERE id = ?");
+            statement.setString(1, userID);
+            return statement.executeQuery().next();
+        }).getData()) {
+
+            var response = database.executeUpdate(connection -> {
+                try (var statement = connection.prepareStatement("UPDATE dbo.images SET name = ?, contentType = ?, image = ? WHERE id = ?")) {
+                    statement.setString(1, name);
+                    statement.setString(2, contentType);
+                    statement.setBinaryStream(3, stream);
+                    statement.setString(4, userID);
+                    return statement.executeUpdate();
+                }
+            });
+
+            if (response.hasError()) {
+                logAction(new Action(userID, "register", "error", "Error updating " + contentType + " Picture: " + response.getException().getMessage()));
+                return false;
+            } else {
+                logAction(new Action(userID, "register", "success", "User updated " + contentType + " Picture successfully"));
+            }
+
+            return true;
+        }
+
+
+        var response = database.executeUpdate(connection -> {
+            try (var statement = connection.prepareStatement(insertImage)) {
+                statement.setString(1, userID);
+                statement.setString(2, name);
+                statement.setString(3, contentType);
+                statement.setBinaryStream(4, stream);
+                return statement.executeUpdate();
+            }
+        });
+
+        if (response.hasError()) {
+            logAction(new Action(userID, "register", "error", "Error adding Profile Picture: " + response.getException().getMessage()));
+            return false;
+        } else {
+            logAction(new Action(userID, "register", "success", "User added Profile Picture successfully"));
+        }
+        return true;
+    }
+
+    /**
+     * Create an account in the database
+     *
+     * @param userData the user data to create the account for
+     * @return if the account was created
+     */
+    private boolean createAccountData(UserData userData) {
+        String insertAccountData = "INSERT INTO dbo.AccountData (id,username,password,account_creation_date,email) VALUES (?,?,?,GetDate(),?)";
+        var response = database.executeUpdate(connection -> {
             try (var statement = connection.prepareStatement(insertAccountData)) {
                 statement.setString(1, userData.getUserID());
                 statement.setString(2, userData.getUsername());
                 statement.setString(3, hashPassword(userData.getPassword()));
-                statement.setBlob(4, blob);
-                statement.setString(5, userData.getEmail());
-                statement.setString(6, imageType);
+                statement.setString(4, userData.getEmail());
                 return statement.executeUpdate();
             }
         });
@@ -89,8 +168,18 @@ public class SessionManager {
             logAction(new Action(userData.getUserID(), "register", "success", "User registered Account successfully"));
         }
 
+        return true;
+    }
 
-        String insertUserData = "INSERT INTO dbo.UserData (id,first_name,last_name,phone_number,street,street_number,city,zip_code,federal_state,birthday,gender) VALUES (?,?,?,?,?,?,?,?,?,?)";
+    /**
+     * Create user data in the database
+     *
+     * @param userData the user data to create
+     * @return if the user data was created
+     */
+    private boolean createUserData(UserData userData) {
+
+        String insertUserData = "INSERT INTO dbo.UserData (id,first_name,last_name,phonenumber,street,street_nr,country,zip_code,federal_state,birthday,gender) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
         DatabaseResponse response1 = database.executeUpdate(connection -> {
             try (var statement = connection.prepareStatement(insertUserData)) {
@@ -104,6 +193,7 @@ public class SessionManager {
                 statement.setString(8, userData.getZipCode());
                 statement.setString(9, userData.getFederalState());
                 statement.setString(10, userData.getBirthday());
+                statement.setString(11, String.valueOf(userData.getGender()));
                 return statement.executeUpdate();
             }
         });
@@ -115,6 +205,7 @@ public class SessionManager {
             logAction(new Action(userData.getUserID(), "register", "success", "User registered UserData successfully"));
         }
         return true;
+
     }
 
 
@@ -170,34 +261,38 @@ public class SessionManager {
     public UserData getUserData(String username) {
 
         String sql = """
-                SELECT *
+                SELECT account.id         as id, account.password as password, account.email as email, userdata.first_name as firstName, 
+                       userdata.last_name as lastName, userdata.federal_state as federalState, 
+                       userdata.street as street, userdata.street_nr as streetNr, userdata.country as country, 
+                       userdata.birthday as birthday, userdata.gender as gender, userdata.phonenumber as phonenumber, images.image as image, images.name as imageName
                   FROM dbo.AccountData account
-                  JOIN dbo.UserData user
-                  ON account.id = user.id
+                  JOIN dbo.UserData userdata
+                  ON account.Id = userdata.Id
+                  JOIN dbo.images images
+                    ON account.Id = images.Id
                   WHERE username = ?""";
         return database.executeSingleObjQuery(connection -> {
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, username);
             var resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                String id = resultSet.getString("account.id");
-                String password = resultSet.getString("account.password");
-                String account_creation_date = resultSet.getString("account.account_creation_date");
-                String username1 = resultSet.getString("account.username");
-                String email = resultSet.getString("account.email");
-                String firstName = resultSet.getString("user.first_name");
-                String lastName = resultSet.getString("user.last_name");
-                String federalState = resultSet.getString("user.federal_state");
-                String street = resultSet.getString("user.street");
-                String street_nr = resultSet.getString("user.street_nr");
-                String birthday = resultSet.getString("user.birthday");
-                char gender = resultSet.getString("user.gender").charAt(0);
-                String phoneNumber = resultSet.getString("user.phonenumber");
-                BufferedImage profilePicture = blobToImage(resultSet.getBlob("account.profile_picture"));
-                String profilePictureType = resultSet.getString("account.profile_picture_extension");
+                String id = resultSet.getString("id");
+                String password = resultSet.getString("password");
+                String email = resultSet.getString("email");
+                String firstName = resultSet.getString("firstName");
+                String lastName = resultSet.getString("lastName");
+                String federalState = resultSet.getString("federalState");
+                String street = resultSet.getString("street");
+                String street_nr = resultSet.getString("streetNr");
+                String country = resultSet.getString("country");
+                String birthday = resultSet.getString("birthday");
+                char gender = resultSet.getString("gender").charAt(0);
+                String phoneNumber = resultSet.getString("phonenumber");
+                BufferedImage profilePicture = resultSet.getBytes("image") != null ? ImageIO.read(new ByteArrayInputStream(resultSet.getBytes("image"))) : null;
+                String profilePictureName = resultSet.getString("imageName");
 
 
-                return new UserData(id, username, firstName, lastName, phoneNumber, street, street_nr, "", email, federalState, birthday, password, gender, email, profilePicture, profilePictureType);
+                return new UserData(id, username, firstName, lastName, phoneNumber, street, street_nr, country, email, federalState, birthday, password, gender, email, profilePicture, profilePictureName);
             }
             return null;
         }).getData();
