@@ -1,9 +1,18 @@
 package com.wonkglorg.loginfx.objects;
 
-import javafx.scene.image.Image;
+import at.favre.lib.crypto.bcrypt.BCrypt;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.sql.Blob;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.logging.Logger;
 
 public class UserData {
 
+    private String userID;
     private String username;
     private String firstName;
     private String lastName;
@@ -16,10 +25,11 @@ public class UserData {
     private String birthday;
     private String password;
     private String email;
-    private Image profileImage;
-    private String gender;
+    private Map.Entry<String, BufferedImage> profileImage;
+    private char gender;
 
-    public UserData(String username, String firstName, String lastName, String phoneNumber, String street, String streetNumber, String city, String zipCode, String federalState, String birthday, String password, String gender, String email, Image profileImage) {
+    public UserData(String userID, String username, String firstName, String lastName, String phoneNumber, String street, String streetNumber, String city, String zipCode, String federalState, String birthday, String password, char gender, String email, BufferedImage profileImage, String fileExtension) {
+        this.userID = userID;
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -32,9 +42,8 @@ public class UserData {
         this.birthday = birthday;
         this.password = password;
         this.email = email;
-        this.profileImage = profileImage;
+        this.profileImage = Map.entry(fileExtension, profileImage);
         this.gender = gender;
-
     }
 
     public String getUsername() {
@@ -85,11 +94,34 @@ public class UserData {
         return email;
     }
 
-    public Image getProfileImage() {
-        return profileImage;
+    public static String hashPassword(String password) {
+        return BCrypt.withDefaults().hashToString(10, password.toCharArray());
     }
 
-    public String getGender() {
+    public static BufferedImage blobToImage(Blob blob) {
+        try {
+            return ImageIO.read((blob.getBinaryStream()));
+        } catch (IOException | SQLException e) {
+            Logger.getLogger("UserData").severe("Error converting byte array to image: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public BufferedImage getProfileImage() {
+        return profileImage.getValue();
+    }
+
+    public String getFileExtension() {
+        return profileImage.getKey();
+    }
+
+    public char getGender() {
         return gender;
     }
+
+    public String getUserID() {
+        return userID;
+    }
+
+
 }

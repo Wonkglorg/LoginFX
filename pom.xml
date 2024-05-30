@@ -45,7 +45,7 @@
         <dependency>
             <groupId>com.github.Wonkglorg</groupId>
             <artifactId>JavaUtil</artifactId>
-            <version>ed97a0806a</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -69,6 +69,11 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Wonkglorg</groupId>
+            <artifactId>Minecraft-UtilityLib</artifactId>
+            <version>21cd2fbe3c</version>
         </dependency>
     </dependencies>
 

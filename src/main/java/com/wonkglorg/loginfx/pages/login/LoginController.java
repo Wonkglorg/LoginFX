@@ -47,12 +47,7 @@ public class LoginController extends ManagedController {
         }
 
         if (sessionManager.isValidUser(usernameString, passwordString)) {
-            /*
-            UserData userData = sessionManager.getUserData(usernameString);
-            BorderController borderController = Application.getInstance().getController(Scenes.BORDER.getName());
-            borderController.login(usernameString, userData.getProfileImage());
-
-             */
+            var user = sessionManager.getUserData(usernameString);
         } else {
             errorLabel.setText("Invalid username or password");
         }

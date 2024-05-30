@@ -13,14 +13,19 @@ import javafx.scene.paint.Paint;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class RegisterController extends ManagedController {
 
     @FXML
     protected ImageView profilePicture;
+    protected BufferedImage bufferedImage;
+    protected String ending;
     @FXML
     protected TextField username;
     @FXML
@@ -83,6 +88,7 @@ public class RegisterController extends ManagedController {
         fields.put(federalState, "Federal state is required");
         fields.put(password, "Password is required");
         fields.put(passwordRepeat, "Password repeat is required");
+        testValues();
     }
 
 
@@ -107,37 +113,64 @@ public class RegisterController extends ManagedController {
         passwordRepeat.clear();
     }
 
+    public void testValues() {
+        username.setText("Wonkglorg");
+        firstName.setText("Dominik");
+        lastName.setText("Meierhofer");
+        email.setText("Wonkglorg.18@gmail.com");
+        phoneNumber.setText("0676-480-00-27");
+        birthday.getEditor().setText("2000-12-18");
+        street.setText("Römergasse");
+        streetNumber.setText("36");
+        city.setText("Salzburg");
+        zipCode.setText("5020");
+        federalState.getSelectionModel().select("Salzburg");
+        password.setText("Password.1");
+        passwordRepeat.setText("Password.1");
+    }
+
     /**
      * Opens a file chooser Dialog to choose an image for the profile picture (png,jpg,jpeg).
      */
     public void chooseImage() {
-        Application.getChooser().fileChooser(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")).ifPresent(file -> profilePicture.setImage(new Image(file.toURI().toString())));
+        Application.getChooser().fileChooser(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"))
+                .ifPresent(
+                        file -> {
+                            try {
+                                bufferedImage = ImageIO.read(file);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            profilePicture.setImage(new Image(file.toURI().toString()));
+                            ending = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+                        }
+                );
     }
 
     private final Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     private final Pattern phoneNumberPattern = Pattern.compile("^0\\d{3}-\\d{3}-\\d{2}-\\d{2}$");
 
-    private void validateUserInput() {
+    private boolean validateUserInput() {
         if (!checkIfRequiredFieldsAreFilled()) {
-            return;
+            return false;
         }
 
         if (!phoneNumberPattern.matcher(phoneNumber.getText()).find()) {
-            phoneNumber.setTooltip(new Tooltip("Invalid phone number"));
-            return;
+            showError(phoneNumber, "Invalid phone number format: ß0XXX-XXX-XX-XX");
+            return false;
         }
         if (!sessionManager.isValidUser(username.getText(), password.getText())) {
-            username.setTooltip(new Tooltip("Username already exists"));
-            return;
+            showError(username, "Username already exists");
+            return false;
         }
 
 
-        if (!password.getText().
-
-                equals(passwordRepeat.getText())) {
+        if (!password.getText().equals(passwordRepeat.getText())) {
             passwordRepeat.setTooltip(new Tooltip("Passwords do not match"));
-            return;
+            return false;
         }
+
+        return true;
 
     }
 
@@ -201,12 +234,23 @@ public class RegisterController extends ManagedController {
      * Register a new user.
      */
     public void register() {
+
         clearErrors();
-        validateUserInput();
+        if (!validateUserInput()) {
+            return;
+        }
+
 
         var passwordRepeatString = passwordRepeat.getText();
 
+
+        String userID = UUID.randomUUID().toString();
+
+
+        BufferedImage image = null;
+
         UserData userData = new UserData(
+                userID,
                 username.getText(),
                 firstName.getText(),
                 lastName.getText(),
@@ -218,9 +262,11 @@ public class RegisterController extends ManagedController {
                 federalState.getValue(),
                 birthday.getValue().toString(),
                 password.getText(),
-                gender.getSelectedToggle().toString(),
+                'M',
                 email.getText(),
-                new Image(profilePicture.getImage().getUrl()));
+                bufferedImage,
+                profilePicture.getImage().getUrl().substring(profilePicture.getImage().getUrl().lastIndexOf(".") + 1)
+        );
 
         if (passwordPattern.matcher(userData.getPassword()).find()) {
             showError(password, "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character");
@@ -232,9 +278,18 @@ public class RegisterController extends ManagedController {
             return;
         }
 
-        if (!isValidEmail(userData.getEmail())) return;
-        if (!isValidPhoneNumber(userData.getPhoneNumber())) return;
-        if (!isValidUsername(userData.getUsername())) return;
+        if (!isValidEmail(userData.getEmail())) {
+            showError(email, "Invalid email or already in use!");
+            return;
+        }
+        if (!isValidPhoneNumber(userData.getPhoneNumber())) {
+            showError(phoneNumber, "Invalid phone number format: 0XXX-XXX-XX-XX");
+            return;
+        }
+        if (!isValidUsername(userData.getUsername())) {
+            showError(username, "Username already exists");
+            return;
+        }
 
 
         sessionManager.registerUser(userData);

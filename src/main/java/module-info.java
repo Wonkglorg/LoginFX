@@ -3,8 +3,9 @@ module com.wonkglorg.loginfx {
     requires javafx.fxml;
     requires java.sql;
     requires com.wonkglorg.fxutility;
-    requires JavaUtil.ed97a0806a;
     requires bcrypt;
+    requires java.desktop;
+    requires JavaUtil;
 
 
     opens com.wonkglorg.loginfx to javafx.fxml;
