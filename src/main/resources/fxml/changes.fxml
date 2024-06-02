@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<VBox alignment="TOP_CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+      minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wonkglorg.loginfx.pages.editor.ChangesController">
+    <children>
+        <Label text="Changes" textAlignment="CENTER">
+            <font>
+                <Font size="24.0"/>
+            </font>
+            <VBox.margin>
+                <Insets bottom="50.0"/>
+            </VBox.margin>
+        </Label>
+        <VBox fx:id="changesBox" alignment="CENTER" fillWidth="false"/>
+    </children>
+</VBox>

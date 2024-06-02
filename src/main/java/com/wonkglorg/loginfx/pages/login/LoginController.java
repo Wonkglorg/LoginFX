@@ -6,7 +6,6 @@ import com.wonkglorg.loginfx.constants.Scenes;
 import com.wonkglorg.loginfx.manager.SessionManager;
 import com.wonkglorg.loginfx.objects.Action;
 import com.wonkglorg.loginfx.pages.editor.EditorController;
-import com.wonkglorg.loginfx.pages.register.RegisterController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -24,6 +23,9 @@ public class LoginController extends ManagedController {
     private SessionManager sessionManager = SessionManager.getInstance();
 
 
+    /**
+     * Logs the user into the application
+     */
     public void login() {
         String usernameString;
         String passwordString;
@@ -42,31 +44,28 @@ public class LoginController extends ManagedController {
             passwordString = password.getText();
         }
 
-
-        if (username.getText().equals("admin") && password.getText().equals("admin")) {
-
-            return;
-        }
-
         if (sessionManager.isValidUser(usernameString, passwordString)) {
-            var user = sessionManager.getUserData(usernameString);
 
-            Application.getInstance().<EditorController>getController(Scenes.EDITOR.getName()).setUser(user);
-            Application.getInstance().loadScene(Scenes.EDITOR.getName());
-            sessionManager.logAction(new Action(user.getUserID(), "Login", "Successful login", usernameString));
-        } else {
-            sessionManager.logAction(new Action("0", "Login", "Failed login attempt", usernameString));
-            errorLabel.setText("Invalid username or password");
-        }
+        var user = sessionManager.getUserData(usernameString);
 
+        Application.getInstance().<EditorController>getController(Scenes.EDITOR.getName()).setUser(user);
+        Application.getInstance().loadScene(Scenes.EDITOR.getName());
+        sessionManager.logAction(new Action(user.userID(), "Login", "successful login", usernameString, null));
+    } else
 
+    {
+        errorLabel.setText("Invalid username or password");
     }
 
+
+}
+
+    /**
+     * Opens the register window
+     */
     public void register() {
         Stage stage = new Stage();
         stage.setScene(Application.getInstance().getScene(Scenes.REGISTER.getName()).getKey());
-        //Hacky solution otherwise errors persist over reopens of the menu
-        Application.getInstance().getScene(Scenes.REGISTER.getName()).getValue().<RegisterController>getController().clearErrors();
         stage.show();
     }
 

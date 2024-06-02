@@ -45,7 +45,7 @@
         <dependency>
             <groupId>com.github.Wonkglorg</groupId>
             <artifactId>JavaUtil</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -74,6 +74,11 @@
             <groupId>com.github.Wonkglorg</groupId>
             <artifactId>Minecraft-UtilityLib</artifactId>
             <version>21cd2fbe3c</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>24.1.0</version>
         </dependency>
     </dependencies>
 

@@ -6,6 +6,7 @@ public enum Scenes {
 
     REGISTER("Register", "/fxml/register.fxml"),
     EDITOR("Editor", "/fxml/editor.fxml"),
+    CHANGES("Changes", "/fxml/changes.fxml"),
     ;
 
     private final String name;

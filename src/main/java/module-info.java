@@ -6,6 +6,7 @@ module com.wonkglorg.loginfx {
     requires bcrypt;
     requires java.desktop;
     requires JavaUtil;
+    requires org.jetbrains.annotations;
 
 
     opens com.wonkglorg.loginfx to javafx.fxml;
@@ -16,4 +17,6 @@ module com.wonkglorg.loginfx {
     opens com.wonkglorg.loginfx.pages.register to javafx.fxml;
     opens com.wonkglorg.loginfx.pages.editor to javafx.fxml;
     opens com.wonkglorg.loginfx.pages.login to javafx.fxml;
+    opens com.wonkglorg.loginfx.objects to javafx.base;
+    exports com.wonkglorg.loginfx.objects;
 }

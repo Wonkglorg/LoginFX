@@ -127,13 +127,13 @@
                 </Label>
                 <HBox spacing="30.0">
                     <children>
-                        <RadioButton mnemonicParsing="false" selected="true" text="Male">
+                        <RadioButton mnemonicParsing="false" selected="true" text="Male" toggleGroup="$gender" userData="M">
                             <toggleGroup>
                                 <ToggleGroup fx:id="gender" />
                             </toggleGroup>
                         </RadioButton>
-                        <RadioButton mnemonicParsing="false" text="Female" toggleGroup="$gender" />
-                        <RadioButton mnemonicParsing="false" text="Other" toggleGroup="$gender" />
+                        <RadioButton mnemonicParsing="false" text="Female" toggleGroup="$gender" userData="F"/>
+                        <RadioButton mnemonicParsing="false" text="Other" toggleGroup="$gender" userData="O" />
                     </children>
                 </HBox>
             </children>

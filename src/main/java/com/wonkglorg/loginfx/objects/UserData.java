@@ -1,128 +1,43 @@
 package com.wonkglorg.loginfx.objects;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import javafx.scene.image.PixelBuffer;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.sql.Blob;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.logging.Logger;
+import java.awt.image.DataBufferInt;
+import java.nio.IntBuffer;
+import java.sql.Date;
 
-public class UserData {
-
-    private String userID;
-    private String username;
-    private String firstName;
-    private String lastName;
-    private String phoneNumber;
-    private String street;
-    private String streetNumber;
-    private String country;
-    private String zipCode;
-    private String federalState;
-    private String birthday;
-    private String password;
-    private String email;
-    private Map.Entry<String, Image> profileImage;
-    private char gender;
-
-    public UserData(String userID, String username, String firstName, String lastName, String phoneNumber, String street, String streetNumber, String country, String zipCode, String federalState, String birthday, String password, char gender, String email, Image profileImage, String imageName) {
-        this.userID = userID;
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.street = street;
-        this.streetNumber = streetNumber;
-        this.country = country;
-        this.zipCode = zipCode;
-        this.federalState = federalState;
-        this.birthday = birthday;
-        this.password = password;
-        this.email = email;
-        this.profileImage = Map.entry(imageName, profileImage);
-        this.gender = gender;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public String getStreetNumber() {
-        return streetNumber;
-    }
-
-    public String getCity() {
-        return country;
-    }
-
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    public String getFederalState() {
-        return federalState;
-    }
-
-    public String getBirthday() {
-        return birthday;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
+public record UserData(String userID, String username, String firstName, String lastName, String phoneNumber,
+                       String street, String streetNr, String country, String zipCode, String federalState,
+                       Date birthday, String password, char gender, String email, BufferedImage profileImage,
+                       String imageName) {
 
     public static String hashPassword(String password) {
         return BCrypt.withDefaults().hashToString(10, password.toCharArray());
     }
 
-    public static BufferedImage blobToImage(Blob blob) {
-        try {
-            return ImageIO.read((blob.getBinaryStream()));
-        } catch (IOException | SQLException e) {
-            Logger.getLogger("UserData").severe("Error converting byte array to image: " + e.getMessage());
-            return null;
-        }
+
+    public BufferedImage getProfileImage() {
+        return profileImage();
     }
 
-    public Image getProfileImage() {
-        return profileImage.getValue();
-    }
+    //fastest solution I could find
+    public static javafx.scene.image.Image getImage(BufferedImage img) {
+        //converting to a good type, read about types here: https://openjfx.io/javadoc/13/javafx.graphics/javafx/scene/image/PixelBuffer.html
+        BufferedImage newImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+        newImg.createGraphics().drawImage(img, 0, 0, img.getWidth(), img.getHeight(), null);
 
-    public String getFileName() {
-        return profileImage.getKey();
-    }
+        //converting the BufferedImage to an IntBuffer
+        int[] type_int_agrb = ((DataBufferInt) newImg.getRaster().getDataBuffer()).getData();
+        IntBuffer buffer = IntBuffer.wrap(type_int_agrb);
 
-    public char getGender() {
-        return gender;
+        //converting the IntBuffer to an Image, read more about it here: https://openjfx.io/javadoc/13/javafx.graphics/javafx/scene/image/PixelBuffer.html
+        PixelFormat<IntBuffer> pixelFormat = PixelFormat.getIntArgbPreInstance();
+        PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer(newImg.getWidth(), newImg.getHeight(), buffer, pixelFormat);
+        return new WritableImage(pixelBuffer);
     }
-
-    public String getUserID() {
-        return userID;
-    }
-
 
 }
