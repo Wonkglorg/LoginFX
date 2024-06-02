@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-import static com.wonkglorg.loginfx.objects.UserData.hashPassword;
-
 public class SessionManager {
 
     private static SessionManager instance;
@@ -46,7 +44,7 @@ public class SessionManager {
     /**
      * Register a user in the database
      *
-     * @param userData the user data to register
+     * @param userData the user data to register with the password already hashed
      * @return if the user was registered
      */
     public boolean registerUser(UserData userData, File image) {
@@ -154,7 +152,7 @@ public class SessionManager {
     /**
      * Create an account in the database
      *
-     * @param userData the user data to create the account for
+     * @param userData the user data to create the account for with the password already hashed
      * @return if the account was created
      */
     private boolean createAccountData(UserData userData) {
@@ -164,7 +162,7 @@ public class SessionManager {
             try (var statement = connection.prepareStatement(insertAccountData)) {
                 statement.setString(1, userData.userID());
                 statement.setString(2, userData.username());
-                statement.setString(3, hashPassword(userData.password()));
+                statement.setString(3, userData.password());
                 statement.setString(4, userData.email());
                 return statement.executeUpdate();
             }
@@ -336,12 +334,13 @@ public class SessionManager {
     /**
      * Update the account data for a user
      *
-     * @param userData the user data to update
+     * @param userData the user data to update with the password already hashed
      * @param image    the image to update
      * @return if the user data was updated
      */
     //todo:jmd current update does not work!
     public boolean updateUserData(UserData userData, File image) {
+
 
         var responseAccount = updateAccount(userData.username(), userData.password(), userData.email(), userData.userID());
 
@@ -364,6 +363,11 @@ public class SessionManager {
             logAction(new Action(userData.userID(), "update", "success", "User updated User Data successfully", null));
         }
 
+        if (image == null) {
+            return true;
+        }
+
+        //only update profile picture if an image is provided
         var updateProfilePicture = updateProfilePicture(userData, image);
 
         if (updateProfilePicture.hasError()) {
@@ -397,7 +401,7 @@ public class SessionManager {
 
         return database.executeUpdate(connection -> {
             PreparedStatement statement = connection.prepareStatement(updateAccount);
-            statement.setString(1, hashPassword(password));
+            statement.setString(1, password);
             statement.setString(2, email);
             statement.setString(3, username);
             statement.setString(4, id);

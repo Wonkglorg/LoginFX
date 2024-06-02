@@ -47,6 +47,8 @@ public class EditorController extends ManagedController {
     TableView<Action> historyTable;
     @FXML
     private Button deleteButton;
+    @FXML
+    private Label errorLabel;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^0\\d{3}-\\d{3}-\\d{2}-\\d{2}$");
@@ -157,6 +159,8 @@ public class EditorController extends ManagedController {
                 showError(passwordRepeat, "Passwords do not match");
                 return;
             }
+
+            user = UserData.changePassword(user, password.getText());
         }
 
 
@@ -191,11 +195,13 @@ public class EditorController extends ManagedController {
         var scene = Application.getInstance().getScene(Scenes.CHANGES.getName());
 
         Stage stage = new Stage();
-        scene.getValue().<ChangesController>getController().setChanges(changes, user, profilePictureFile == null ? null : profilePictureFile);
+        //do not forget to hash the password by this point or it will be stored in plain text
+        scene.getValue().<ChangesController>getController().setChanges(changes, user, profilePictureFile);
 
         stage.setScene(scene.getKey());
         stage.show();
     }
+
 
     /**
      * Utility method to show an error message for a specific control.
@@ -236,9 +242,7 @@ public class EditorController extends ManagedController {
 
         }
 
-        return new UserData(user.userID(), username.getText(), firstName.getText(), lastName.getText(), phoneNumber.getText(), street.getText(), streetNumber.getText(), city.getText(), zipCode.getText(), federalState.getSelectionModel().getSelectedItem(), Date.valueOf(birthday.getValue()),
-                password, gender.getSelectedToggle().getUserData().toString().charAt(0), email.getText(), profileImage, user.imageName())
-                ;
+        return new UserData(user.userID(), username.getText(), firstName.getText(), lastName.getText(), phoneNumber.getText(), street.getText(), streetNumber.getText(), city.getText(), zipCode.getText(), federalState.getSelectionModel().getSelectedItem(), Date.valueOf(birthday.getValue()), password, gender.getSelectedToggle().getUserData().toString().charAt(0), email.getText(), profileImage, user.imageName());
     }
 
 
@@ -346,6 +350,10 @@ public class EditorController extends ManagedController {
     public void chooseImage() {
         if (!editing) return;
         Application.getChooser().fileChooser(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")).ifPresent(file -> {
+            if (file.length() > 5000000) {
+                errorLabel.setText("File is too big, please select a file smaller than 5MB");
+                return;
+            }
             profilePictureFile = file;
             profilePicture.setImage(new Image(file.toURI().toString()));
         });

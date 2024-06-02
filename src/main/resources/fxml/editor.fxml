@@ -21,7 +21,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wonkglorg.loginfx.pages.editor.EditorController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wonkglorg.loginfx.pages.editor.EditorController">
     <tabs>
         <Tab closable="false" text="Edit">
 
@@ -35,6 +35,11 @@
                             <Insets top="20.0" />
                         </VBox.margin>
                     </Label>
+               <Label fx:id="errorLabel" textFill="RED">
+                  <font>
+                     <Font size="18.0" />
+                  </font>
+               </Label>
                     <ImageView fx:id="profilePicture" fitHeight="150.0" fitWidth="200.0" onMouseClicked="#chooseImage" pickOnBounds="true" preserveRatio="true">
                         <image>
                             <Image url="@../images/default.png" />

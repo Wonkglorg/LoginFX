@@ -14,8 +14,7 @@ public class Application extends ManagedApplication {
         stage.setResizable(false);
         addScenes();
 
-
-        //sessionManager.deleteUser("58c38e19-727d-4d51-9c60-5cb8be963608");
+        //sessionManager.deleteUser("8eac4572-8224-425f-93e4-c7a89894d68b");
         loadScene(Scenes.LOGIN.getName());
 
     }

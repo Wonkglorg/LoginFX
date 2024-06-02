@@ -37,7 +37,7 @@ public class ChangesController extends ManagedController {
      * Entry point should always be called first
      *
      * @param changes        the changes that should be displayed
-     * @param data           the data that should be updated
+     * @param data           the data that should be updated with the password already hashed
      * @param profilePicture the profile picture that should be updated
      */
     public void setChanges(Map<String, Map.Entry<String, String>> changes, UserData data, File profilePicture) {
@@ -57,6 +57,11 @@ public class ChangesController extends ManagedController {
         profilePictureFile = null;
         userData = null;
         changes.clear();
+        closeWindow();
+    }
+
+    private void closeWindow() {
+        changesBox.getScene().getWindow().hide();
     }
 
 

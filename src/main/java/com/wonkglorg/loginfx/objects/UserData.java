@@ -63,4 +63,17 @@ public record UserData(String userID, String username, String firstName, String 
         return new WritableImage(pixelBuffer);
     }
 
+    /**
+     * Changes the password of the user
+     *
+     * @param userData    the user data
+     * @param newPassword the new password (will be hashed by the function)
+     * @return the new user data with the new password
+     */
+    public static UserData changePassword(UserData userData, String newPassword) {
+        return new UserData(userData.userID(), userData.username(), userData.firstName(), userData.lastName(),
+                userData.phoneNumber(), userData.street(), userData.streetNr(), userData.country(), userData.zipCode(),
+                userData.federalState(), userData.birthday(), hashPassword(newPassword), userData.gender, userData.email(), userData.profileImage, userData.imageName());
+    }
+
 }

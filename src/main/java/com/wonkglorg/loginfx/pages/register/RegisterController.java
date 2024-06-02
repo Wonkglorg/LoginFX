@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import static com.wonkglorg.loginfx.objects.UserData.hashPassword;
+
 public class RegisterController extends ManagedController {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
@@ -42,6 +44,8 @@ public class RegisterController extends ManagedController {
     private ComboBox<String> federalState;
     @FXML
     private ToggleGroup gender;
+    @FXML
+    private Label errorLabel;
     private File profilePictureFile;
 
     @Override
@@ -115,6 +119,10 @@ public class RegisterController extends ManagedController {
     public void chooseImage() {
         Application.getChooser().fileChooser(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"))
                 .ifPresent(file -> {
+                    if (file.length() > 5000000) {
+                        errorLabel.setText("File is too big, please select a file smaller than 5MB");
+                        return;
+                    }
                     profilePictureFile = file;
                     profilePicture.setImage(new Image(file.toURI().toString()));
                 });
@@ -127,6 +135,13 @@ public class RegisterController extends ManagedController {
      */
 
     private boolean validateUserInput() {
+
+
+        if (profilePicture.getImage() == null) {
+            errorLabel.setText("Please select a profile picture");
+            return false;
+        }
+
         if (!checkIfRequiredFieldsAreFilled()) {
             return false;
         }
@@ -155,6 +170,7 @@ public class RegisterController extends ManagedController {
             showError(email, "Invalid email or already in use!");
             return false;
         }
+
 
         return true;
     }
@@ -206,6 +222,7 @@ public class RegisterController extends ManagedController {
      * Clears all error messages and borders from the form.
      */
     public void clearErrors() {
+        errorLabel.setText("");
         fields.keySet().forEach(control -> {
             control.setTooltip(null);
             control.setBorder(null);
@@ -219,6 +236,7 @@ public class RegisterController extends ManagedController {
      */
     public void register() throws IOException {
         clearErrors();
+
 
         if (!validateUserInput()) {
             return;
@@ -238,7 +256,7 @@ public class RegisterController extends ManagedController {
                 zipCode.getText(),
                 federalState.getValue(),
                 Date.valueOf(birthday.getValue()),
-                password.getText(),
+                hashPassword(password.getText()),
                 gender.getSelectedToggle().getUserData().toString().charAt(0),
                 email.getText(),
                 ImageIO.read(profilePictureFile.toURI().toURL()),
