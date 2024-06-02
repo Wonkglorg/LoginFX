@@ -10,11 +10,34 @@ import java.awt.image.DataBufferInt;
 import java.nio.IntBuffer;
 import java.sql.Date;
 
+/**
+ * This class represents the user data that is stored in the database
+ *
+ * @param userID       the unique identifier of the user
+ * @param username     the username of the user
+ * @param firstName    the first name of the user
+ * @param lastName     the last name of the user
+ * @param phoneNumber  the phone number of the user
+ * @param street       the street of the user
+ * @param streetNr     the street number of the user
+ * @param country      the country of the user
+ * @param zipCode      the zip code of the user
+ * @param federalState the federal state of the user
+ * @param birthday     the birthday of the user
+ * @param password     the password of the user
+ * @param gender       gender as char (M = Male /F = Female /O = Other)
+ * @param email        the email of the user
+ * @param profileImage the profile image of the user
+ * @param imageName    the name of the image
+ */
 public record UserData(String userID, String username, String firstName, String lastName, String phoneNumber,
                        String street, String streetNr, String country, String zipCode, String federalState,
                        Date birthday, String password, char gender, String email, BufferedImage profileImage,
                        String imageName) {
 
+    /**
+     * Hashes the password with BCrypt
+     */
     public static String hashPassword(String password) {
         return BCrypt.withDefaults().hashToString(10, password.toCharArray());
     }

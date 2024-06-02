@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+import static com.wonkglorg.loginfx.objects.UserData.hashPassword;
+
 public class SessionManager {
 
     private static SessionManager instance;
@@ -36,15 +38,6 @@ public class SessionManager {
         return instance;
     }
 
-    /**
-     * Hash the password using BCrypt with a cost of 10 (matching the default php password_hash cost)
-     *
-     * @param password
-     * @return the hashed password
-     */
-    public String hashPassword(String password) {
-        return BCrypt.withDefaults().hashToString(10, password.toCharArray());
-    }
 
     public boolean checkPassword(String password, String hash) {
         return BCrypt.verifyer().verify(password.toCharArray(), hash).verified;
@@ -59,31 +52,24 @@ public class SessionManager {
     public boolean registerUser(UserData userData, File image) {
         if (!createAccountData(userData)) return false;
 
-        try (FileInputStream fileInputStream = new FileInputStream(image);
-             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
 
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                byteArrayOutputStream.write(buffer, 0, bytesRead);
-            }
+        String extension = image.getName().split("\\.")[image.getName().split("\\.").length - 1];
 
-
-            String extension = image.getName().split("\\.")[image.getName().split("\\.").length - 1];
-
-            if (!createUserProfilePicture(byteArrayOutputStream, userData.userID(), "profile_picture", "profile_picture", extension)) {
-                return false;
-            }
-
-            if (!createUserData(userData)) return false;
-
-            return true;
-        } catch (IOException e) {
-            logAction(new Action(userData.userID(), "register", "error", "Error reading Profile Picture: " + e.getMessage(), null));
+        if (!createUserProfilePicture(getByteArrayOutputStream(image), userData.userID(), "profile_picture", "profile_picture", extension)) {
             return false;
         }
+
+        if (!createUserData(userData)) return false;
+
+        return true;
     }
 
+    /**
+     * Gets a user's account creation date
+     *
+     * @param username the username
+     * @return the account creation date
+     */
     public String getAccountCreationDate(String username) {
         String sql = "SELECT account_creation_date FROM dbo.AccountData WHERE username = ?";
         return database.executeSingleObjQuery(connection -> {
@@ -356,91 +342,149 @@ public class SessionManager {
      */
     //todo:jmd current update does not work!
     public boolean updateUserData(UserData userData, File image) {
-        String updateAccount = """
-                UPDATE dbo.AccountData
-                SET
-                    password = ?,
-                    email = ?
-                FROM dbo.AccountData account
-                JOIN dbo.UserData userdata ON account.Id = userdata.Id
-                JOIN dbo.images images ON account.Id = images.Id
-                WHERE account.username = ?;
-                """;
 
-        var response = database.executeUpdate(connection -> {
-            PreparedStatement statement = connection.prepareStatement(updateAccount);
-            statement.setString(1, hashPassword(userData.password()));
-            statement.setString(2, userData.email());
-            statement.setString(3, userData.username());
-            return statement.executeUpdate();
-        });
+        var responseAccount = updateAccount(userData.username(), userData.password(), userData.email(), userData.userID());
 
-        if (response.hasError()) {
-            logAction(new Action(userData.userID(), "update", "error", "Error updating Account Data: " + response.getException().getMessage(), null));
+        if (responseAccount.hasError()) {
+            logAction(new Action(userData.userID(), "update", "error", "Error updating Account Data: " + responseAccount.getException().getMessage(), null));
+            System.out.println("Error updating account data: " + responseAccount.getException().getMessage());
             return false;
         } else {
             logAction(new Action(userData.userID(), "update", "success", "User updated Account Data successfully", null));
         }
 
+        var responseUser = updateUserData(userData);
 
-        String sql = """    
-                 UPDATE
-                    dbo.AccountData account,
-                    dbo.AccountData account,
-                    dbo.images images
-                SET
-                    account.password = ?,
-                    account.email = ?,
-                    userdata.first_name = ?,
-                    userdata.last_name = ?,
-                    userdata.federal_state = ?,
-                    userdata.zip_code
-                    userdata.street = ?,
-                    userdata.street_nr = ?,
-                    userdata.country = ?,
-                    userdata.birthday = ?,
-                    userdata.gender = ?,
-                    userdata.phonenumber = ?,
-                    images.image = ?,
-                FROM
-                    dbo.AccountData account
-                JOIN
-                    dbo.UserData userdata ON account.Id = userdata.Id
-                JOIN
-                    dbo.images images ON account.Id = images.Id
-                WHERE
-                    account.username = ?;""";
 
-        var response1 = database.executeUpdate(connection -> {
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, hashPassword(userData.password()));
-            statement.setString(2, userData.email());
-            statement.setString(3, userData.firstName());
-            statement.setString(4, userData.lastName());
-            statement.setString(5, userData.federalState());
-            statement.setString(6, userData.zipCode());
-            statement.setString(7, userData.street());
-            statement.setString(8, userData.street());
-            statement.setString(9, userData.country());
-            statement.setString(10, userData.zipCode());
-            statement.setDate(11, userData.birthday());
-            statement.setString(12, String.valueOf(userData.gender()));
-            statement.setString(13, userData.phoneNumber());
-            statement.setBinaryStream(14, new FileInputStream(image));
-            statement.setString(15, userData.username());
-            return statement.executeUpdate();
-
-        });
-        if (response1.hasError()) {
-            logAction(new Action(userData.userID(), "update", "error", "Error updating User Data: " + response.getException().getMessage(), null));
+        if (responseUser.hasError()) {
+            logAction(new Action(userData.userID(), "update", "error", "Error updating User Data: " + responseAccount.getException().getMessage(), null));
+            System.out.println("Error updating user data: " + responseUser.getException().getMessage());
             return false;
         } else {
             logAction(new Action(userData.userID(), "update", "success", "User updated User Data successfully", null));
         }
 
+        var updateProfilePicture = updateProfilePicture(userData, image);
+
+        if (updateProfilePicture.hasError()) {
+            logAction(new Action(userData.userID(), "update", "error", "Error updating Profile Picture: " + updateProfilePicture.getException().getMessage(), null));
+            System.out.println("Error updating profile picture: " + updateProfilePicture.getException().getMessage());
+            return false;
+        } else {
+            logAction(new Action(userData.userID(), "update", "success", "User updated Profile Picture successfully", null));
+        }
+
+
         return true;
     }
 
+    /**
+     * Update the account data for a user
+     *
+     * @param username the username
+     * @param password the password
+     * @param email    the email
+     * @return the response
+     */
+    private DatabaseUpdateResponse updateAccount(String username, String password, String email, String id) {
+        String updateAccount = """
+                UPDATE dbo.AccountData
+                SET password = ?,
+                    email = ?,
+                    username = ?
+                WHERE id = ?;
+                """;
+
+        return database.executeUpdate(connection -> {
+            PreparedStatement statement = connection.prepareStatement(updateAccount);
+            statement.setString(1, hashPassword(password));
+            statement.setString(2, email);
+            statement.setString(3, username);
+            statement.setString(4, id);
+            return statement.executeUpdate();
+        });
+    }
+
+    /**
+     * Update the user data for a user
+     *
+     * @param userData the user data to update
+     * @return the response
+     */
+    private DatabaseUpdateResponse updateUserData(UserData userData) {
+        String sql = """    
+                UPDATE dbo.UserData
+                   SET first_name = ?,
+                       last_name = ?,
+                       federal_state = ?,
+                       zip_code = ?,
+                       street = ?,
+                       street_nr = ?,
+                       country = ?,
+                       birthday = ?,
+                       gender = ?,
+                       phonenumber = ?
+                WHERE  id = ?;""";
+
+        return database.executeUpdate(connection -> {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, userData.firstName());
+            statement.setString(2, userData.lastName());
+            statement.setString(3, userData.federalState());
+            statement.setString(4, userData.zipCode());
+            statement.setString(5, userData.street());
+            statement.setString(6, userData.streetNr());
+            statement.setString(7, userData.country());
+            statement.setDate(8, userData.birthday());
+            statement.setString(9, String.valueOf(userData.gender()));
+            statement.setString(10, userData.phoneNumber());
+            statement.setString(11, userData.userID());
+            return statement.executeUpdate();
+        });
+    }
+
+    private ByteArrayOutputStream getByteArrayOutputStream(File image) {
+        try (FileInputStream fileInputStream = new FileInputStream(image); ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+
+            return byteArrayOutputStream;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Update the profile picture for a user
+     *
+     * @param data  the user data
+     * @param image the image
+     * @return the response
+     */
+    private DatabaseUpdateResponse updateProfilePicture(UserData data, File image) {
+        String updateImageSql = """
+                UPDATE dbo.images
+                   SET image = ?,
+                       extension = ?
+                 WHERE id = ?
+                """;
+
+
+        String extension = image.getName().split("\\.")[image.getName().split("\\.").length - 1];
+
+        return database.executeUpdate(connection -> {
+            try (var statement = connection.prepareStatement(updateImageSql)) {
+                statement.setBytes(1, getByteArrayOutputStream(image).toByteArray());
+                statement.setString(2, extension);
+                statement.setString(3, data.userID());
+                return statement.executeUpdate();
+            }
+        });
+    }
 
     /**
      * Get all actions for a user

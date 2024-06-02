@@ -6,6 +6,7 @@ import com.wonkglorg.loginfx.constants.Scenes;
 import com.wonkglorg.loginfx.manager.SessionManager;
 import com.wonkglorg.loginfx.objects.Action;
 import com.wonkglorg.loginfx.objects.UserData;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -44,6 +45,8 @@ public class EditorController extends ManagedController {
     private ToggleGroup gender;
     @FXML
     TableView<Action> historyTable;
+    @FXML
+    private Button deleteButton;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^0\\d{3}-\\d{3}-\\d{2}-\\d{2}$");
@@ -79,9 +82,10 @@ public class EditorController extends ManagedController {
         fields.put(federalState, "Federal state is required");
     }
 
+    /**
+     * Sets the data of the user to the fields in the editor
+     */
     private void setData() {
-
-
         profilePicture.setImage(UserData.getImage(user.getProfileImage()));
         username.setText(user.username());
         firstName.setText(user.firstName());
@@ -97,6 +101,9 @@ public class EditorController extends ManagedController {
         accountCreatedLabel.setText("Account created: " + sessionManager.getAccountCreationDate(user.username()));
     }
 
+    /**
+     * Clears all fields in the form.
+     */
     public void clear() {
         profilePicture.setImage(null);
         username.clear();
@@ -115,6 +122,9 @@ public class EditorController extends ManagedController {
         passwordRepeat.clear();
     }
 
+    /**
+     * Clears all errors in the form.
+     */
     public void clearErrors() {
         fields.keySet().forEach(control -> {
             control.setTooltip(null);
@@ -122,6 +132,9 @@ public class EditorController extends ManagedController {
         });
     }
 
+    /**
+     * Starts the checks for the user update if all required fields are filled and if the data is valid. Prompts the next popup menu
+     */
     public void updateUser() {
         if (!editing) {
             return;
@@ -184,6 +197,12 @@ public class EditorController extends ManagedController {
         stage.show();
     }
 
+    /**
+     * Utility method to show an error message for a specific control.
+     *
+     * @param control The control to show the error message for.
+     * @param message The error message to show.
+     */
     private void showError(Control control, String message) {
         Tooltip tooltip = new Tooltip(message);
         tooltip.setShowDelay(javafx.util.Duration.ZERO);
@@ -191,6 +210,11 @@ public class EditorController extends ManagedController {
         control.setBorder(ERROR_BORDER);
     }
 
+    /**
+     * Creates a new UserData object with the data from the form.
+     *
+     * @return the created UserData object
+     */
     protected UserData createNewUserData() {
         String password = this.password.getText();
         if (password.isEmpty()) {
@@ -217,6 +241,14 @@ public class EditorController extends ManagedController {
                 ;
     }
 
+
+    /**
+     * Compares the original data with the new data and returns a map with the changes.
+     *
+     * @param originalData the original data
+     * @param newData      the new data
+     * @return a map with the changes
+     */
 
     protected Map<String, Map.Entry<String, String>> changes(UserData originalData, UserData newData) {
         Map<String, Map.Entry<String, String>> changes = new HashMap<>();
@@ -262,6 +294,12 @@ public class EditorController extends ManagedController {
         return changes;
     }
 
+    /**
+     * Gets the image from a file
+     *
+     * @param file
+     * @return {@link BufferedImage}
+     */
     private BufferedImage getImage(File file) {
         try {
             return ImageIO.read(file);
@@ -272,6 +310,9 @@ public class EditorController extends ManagedController {
 
     }
 
+    /**
+     * Sets the history of the user to the history table
+     */
     public void setHistory() {
         var actions = sessionManager.getActions(user.userID());
         prepareColumns();
@@ -292,10 +333,16 @@ public class EditorController extends ManagedController {
         historyTable.getColumns().addAll(columns);
     }
 
+    /**
+     * Clears the history table
+     */
     protected void clearHistory() {
         historyTable.getItems().clear();
     }
 
+    /**
+     * Opens a file chooser to choose an image for the profile picture
+     */
     public void chooseImage() {
         if (!editing) return;
         Application.getChooser().fileChooser(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")).ifPresent(file -> {
@@ -304,10 +351,18 @@ public class EditorController extends ManagedController {
         });
     }
 
+    /**
+     * Toggles the editing mode
+     */
     public void edit() {
         edit(!editing);
     }
 
+    /**
+     * Toggles the editing mode
+     *
+     * @param editing the editing mode
+     */
     public void edit(boolean editing) {
         this.editing = editing;
         setFieldsEditable(editing);
@@ -320,6 +375,11 @@ public class EditorController extends ManagedController {
 
     }
 
+    /**
+     * Sets the fields to editable or not editable
+     *
+     * @param editable true if the fields should be editable, false otherwise
+     */
     private void setFieldsEditable(boolean editable) {
         username.setEditable(editable);
         username.setDisable(!editable);
@@ -365,6 +425,11 @@ public class EditorController extends ManagedController {
         return column;
     }
 
+    /**
+     * Sets the user for the editor, this is meant as the entry point for the editor without this the editor will not work correctly
+     *
+     * @param user
+     */
     public void setUser(UserData user) {
         this.user = user;
         setData();
@@ -372,6 +437,9 @@ public class EditorController extends ManagedController {
         edit(false);
     }
 
+    /**
+     * Goes back to the login page and clears the session
+     */
     public void backToLogin() {
         clear();
         clearHistory();
@@ -408,5 +476,44 @@ public class EditorController extends ManagedController {
         return allFieldsFilled;
     }
 
+    private boolean deleteConfirmation = false;
+
+    /**
+     * Deletes the user this method has to be called twice by the user to actually delete the user
+     */
+    public void delete() {
+
+        if (!deleteConfirmation) {
+            deleteConfirmation = true;
+            deleteButton.setText("Confirm Delete");
+            startConfirmationTask();
+            return;
+        }
+
+        deleteConfirmation = false;
+
+
+        sessionManager.deleteUser(user.userID());
+        deleteButton.setText("Delete");
+        backToLogin();
+    }
+
+
+    /**
+     * Starts a task that will revert the delete button to the original state after 5 seconds
+     */
+    private void startConfirmationTask() {
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+                Platform.runLater(() -> {
+                    deleteConfirmation = false;
+                    deleteButton.setText("Delete");
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
 }

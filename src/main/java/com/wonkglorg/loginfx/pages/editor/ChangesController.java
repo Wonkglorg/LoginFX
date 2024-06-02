@@ -33,6 +33,13 @@ public class ChangesController extends ManagedController {
 
     }
 
+    /**
+     * Entry point should always be called first
+     *
+     * @param changes        the changes that should be displayed
+     * @param data           the data that should be updated
+     * @param profilePicture the profile picture that should be updated
+     */
     public void setChanges(Map<String, Map.Entry<String, String>> changes, UserData data, File profilePicture) {
         this.changes = changes;
         this.userData = data;
@@ -41,6 +48,9 @@ public class ChangesController extends ManagedController {
     }
 
 
+    /**
+     * Confirms the changes and updates the user data
+     */
     public void confirm() {
         sessionManager.updateUserData(userData, profilePictureFile);
         changesBox.getChildren().clear();
@@ -50,6 +60,11 @@ public class ChangesController extends ManagedController {
     }
 
 
+    /**
+     * Prepares the change menu sets the fields etc
+     *
+     * @param changes the changes that should be displayed
+     */
     private void prepareChangeMenu(Map<String, Map.Entry<String, String>> changes) {
         changesBox.getChildren().clear();
         for (var change : changes.entrySet()) {
@@ -60,6 +75,13 @@ public class ChangesController extends ManagedController {
         changesBox.getChildren().add(confirm);
     }
 
+    /**
+     * Helper Method to create a change row
+     *
+     * @param name   the name of the change
+     * @param change the change
+     * @return the created row
+     */
     private HBox createChangeRow(String name, Map.Entry<String, String> change) {
         var row = new HBox();
         Label label = new Label(name);
